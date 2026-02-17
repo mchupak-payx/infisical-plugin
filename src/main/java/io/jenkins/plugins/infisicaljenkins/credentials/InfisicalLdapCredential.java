@@ -10,53 +10,67 @@ import io.jenkins.plugins.infisicaljenkins.infisical.InfisicalAuth;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
 
-public class InfisicalUniversalAuthCredential extends AbstractAuthenticatingInfisicalTokenCredential {
+public class InfisicalLdapCredential extends AbstractAuthenticatingInfisicalTokenCredential {
 
     @NonNull
-    private String machineIdentityClientId;
+    private String identityId;
 
     @NonNull
-    private String machineIdentityClientSecret;
+    private String username;
+
+    @NonNull
+    private String password;
 
     private final InfisicalAuth infisicalAuth;
 
     @DataBoundConstructor
-    public InfisicalUniversalAuthCredential(
+    public InfisicalLdapCredential(
             @CheckForNull CredentialsScope scope,
             @CheckForNull String id,
             @CheckForNull String description,
-            @NonNull String machineIdentityClientId,
-            @NonNull String machineIdentityClientSecret) {
+            @NonNull String identityId,
+            @NonNull String username,
+            @NonNull String password) {
         super(scope, id, description);
         this.infisicalAuth = new InfisicalAuth();
-        this.machineIdentityClientId = machineIdentityClientId;
-        this.machineIdentityClientSecret = machineIdentityClientSecret;
+        this.identityId = identityId;
+        this.username = username;
+        this.password = password;
     }
 
     @NonNull
-    public String getMachineIdentityClientId() {
-        return machineIdentityClientId;
+    public String getIdentityId() {
+        return identityId;
     }
 
     @NonNull
-    public String getMachineIdentityClientSecret() {
-        return machineIdentityClientSecret;
+    public String getUsername() {
+        return username;
+    }
+
+    @NonNull
+    public String getPassword() {
+        return password;
     }
 
     @DataBoundSetter
-    public void setMachineIdentityClientId(String machineIdentityClientId) {
-        this.machineIdentityClientId = machineIdentityClientId;
+    public void setIdentityId(String identityId) {
+        this.identityId = identityId;
     }
 
     @DataBoundSetter
-    public void setMachineIdentityClientSecret(String machineIdentityClientSecret) {
-        this.machineIdentityClientSecret = machineIdentityClientSecret;
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    @DataBoundSetter
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     public String getAccessToken(InfisicalConfiguration configuration) {
         try {
-            return infisicalAuth.loginWithUniversalAuth(
-                    configuration.getInfisicalUrl(), machineIdentityClientId, machineIdentityClientSecret);
+            return infisicalAuth.loginWithLdapAuth(configuration.getInfisicalUrl(), identityId, username, password);
 
         } catch (InfisicalPluginException e) {
             throw new InfisicalPluginException("Failed to authenticate with Infisical", e);
@@ -69,7 +83,7 @@ public class InfisicalUniversalAuthCredential extends AbstractAuthenticatingInfi
         @NonNull
         @Override
         public String getDisplayName() {
-            return "Infisical Universal Auth Credential";
+            return "Infisical LDAP Credential";
         }
     }
 }
